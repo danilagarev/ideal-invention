@@ -17,6 +17,6 @@
     "forceConsistentCasingInFileNames": true,
     "typeRoots": ["types", "../../types", "../../node_modules/@types"]
   },
-  "include": ["*/src/**/*.ts", "*/test/**/*.ts", "rpc-cache.config.json"],
+  "include": ["*/src/**/*.ts", "*/test/**/*.ts", "rpc-cache.config.json", "*/mongo/src/*.ts"],
   "exclude": ["*/src/**/*.test.ts", "**/node_modules", "node_modules"]
 }

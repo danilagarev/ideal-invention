@@ -57,6 +57,7 @@ export function createRpcClient(url: string, useHttps: boolean): RpcClient {
       }
     } catch (err) {
       console.log(`Error getting to RPC-CACHE-READER: ${err}`);
+      // @ts-ignore
       callback(err);
     } finally {
       agentManager && agentManager.requestEnd();

@@ -32,6 +32,8 @@ app.post("/", (req, res) => {
   if (functionNames.indexOf(jsonRPCRequest.method) >= 0) {
     console.log("RPC method found in the config file");
     server.receive(jsonRPCRequest).then((jsonRPCResponse) => {
+      console.log(jsonRPCResponse)
+
       if (jsonRPCResponse && jsonRPCResponse.error) {
         console.log(
           "rejected: " + util.inspect(jsonRPCResponse.error, { depth: null })
