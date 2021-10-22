@@ -11,13 +11,6 @@ Requirements for usage locally:
 - Docker Compose
 - Docker
 
-Installing:
-
-```bash
-cd rpc-cache-server
-npm i
-```
-
 Create a .env file with the following contents:
 
 ```
