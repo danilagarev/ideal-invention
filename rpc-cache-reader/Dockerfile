@@ -1,4 +1,4 @@
 FROM node:latest
 WORKDIR /app
-COPY ../ .
+COPY ./ .
 RUN npm install
