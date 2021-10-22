@@ -31,3 +31,5 @@ Then, to run the project, execute:
 ```bash
 docker-compose up
 ```
+
+Server started on [localhost:3000]()
