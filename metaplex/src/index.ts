@@ -8,12 +8,8 @@ const { metaplex: { Store, AuctionManager }, metadata: { Metadata }, vault: { Va
 export async function getAuctionsByStore(storePubkey: string): Promise<AuctionDB[]> {
   const store = await Store.load(connection, storePubkey);
   const auctionManagers = await store.getAuctionManagers(connection);
-  const auctions = [];
-  for (const auctionManager of auctionManagers) {
-    const data = await prepareAuction(auctionManager);
-    auctions.push(data);
-  }
-  return auctions;
+  const auctionPromises = auctionManagers.map((item) => prepareAuction((item)));
+  return await Promise.all(auctionPromises);
 }
 
 export async function getAuctionsByAuctionManager(aucManagerPubkey: string): Promise<AuctionDB> {
@@ -33,7 +29,6 @@ async function getAuctionStateByNum(num: number) {
 
 async function prepareAuction(auctionManager: any): Promise<AuctionDB> {
   const auction = await auctionManager.getAuction(connection);
-  // console.log(auction);
   const vaultPubkey = auctionManager.data.vault;
   const vault = await Vault.load(connection, vaultPubkey);
   const safetyDepositBox = (await vault.getSafetyDepositBoxes(connection))[0];

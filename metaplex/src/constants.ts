@@ -7,7 +7,8 @@ import {programs} from "@metaplex/js";
 const {metaplex: {MetaplexKey}} = programs;
 
 export const connection = new Connection("https://api.devnet.solana.com");
-export const STORE_ID = new PublicKey("8DLNU7o4dN3VtNPQsFkUEg89oSaXazQkMDG8ufQtzFQN");
+export const STORE_ID = new PublicKey(process.env.STORE_ADDRESS ||
+  "8DLNU7o4dN3VtNPQsFkUEg89oSaXazQkMDG8ufQtzFQN");
 export const SETUP_FILTERS = [
   {
     memcmp: {

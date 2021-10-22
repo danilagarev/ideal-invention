@@ -1,12 +1,6 @@
-import express from "express";
-import bodyParser from "body-parser";
-import cors from "cors";
 import { getProgramAccounts } from "./solana_utils/getProgramAccounts";
 import { settings } from "../../rpc-cache-utils/src/config";
-
-const app = express();
-app.use(bodyParser.json());
-app.use(cors());
+import {AuctionModel} from "../../mongo/src/models";
 
 const callCorrespondingCachedMethod = async (
   name: string,
@@ -29,6 +23,10 @@ const callCorrespondingCachedMethod = async (
 };
 
 (async () => {
+  // TODO: fix hardcode, find better solution.
+  console.log("Refreshing database...")
+  await AuctionModel.deleteMany();
+
   for (const name of settings.cacheFunctions.names) {
     const params = (settings.cacheFunctions.params as Record<string, any>)[
       name
@@ -53,19 +51,3 @@ const callCorrespondingCachedMethod = async (
   }
   console.log("Finished Populating cache");
 })();
-
-app.post("/", (req, res) => {
-  // when this is called, it means a cache miss happened and the cache needs to be written to.
-  // to do this, make an RPC call to the full node and write the value to cache.
-  const { method, mainParam, filters } = req.body;
-  const functionNames = settings.cacheFunctions.names;
-  if (functionNames.indexOf(method) >= 0) {
-    console.log(`Cache invalidation: ${method} - ${mainParam}`);
-    (async () => {
-      await callCorrespondingCachedMethod(method, mainParam, filters, true);
-    })();
-  }
-  return res.sendStatus(200);
-});
-
-app.listen(process.env.WRITER_PORT);

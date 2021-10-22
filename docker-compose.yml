@@ -1,0 +1,36 @@
+version: "3.8"
+services:
+  writer:
+    build:
+      context: ./
+      dockerfile: ./rpc-cache-writer/Dockerfile
+    env_file:
+      - ./.env
+    command: node ./dist/lib/rpc-cache-writer/src/writer
+    working_dir: /app
+    depends_on:
+      - mongodb
+    links:
+      - mongodb
+  reader:
+    build:
+      context: ./
+      dockerfile: ./rpc-cache-reader/Dockerfile
+    env_file:
+      - ./.env
+    command: node ./dist/lib/rpc-cache-reader/src/reader
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+      - writer
+    links:
+      - mongodb
+  mongodb:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: test1234
+    ports:
+      - "27017:27017"

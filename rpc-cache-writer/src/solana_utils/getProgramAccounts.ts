@@ -1,11 +1,13 @@
 import { PublicKey } from "@solana/web3.js";
 import {
   connection,
-  redisWriteClient,
 } from "../../../rpc-cache-utils/src/connection";
-import { settings } from "../../../rpc-cache-utils/src/config";
-import { ParsedKeyedAccountInfo } from "../../../rpc-cache-utils/src/utils";
+import {
+  settings
+} from "../../../rpc-cache-utils/src/config";
 import * as util from "util";
+import {addAuction} from "../../../common/src/auction";
+import {SETUP_FILTERS} from "../../../metaplex/src/constants";
 
 const webSocketsIds: Map<string, number> = new Map();
 
@@ -21,11 +23,12 @@ export const getProgramAccounts = async (
         filter
       )}`
     );
+
     const resp = await (connection as any)._rpcRequest("getProgramAccounts", [
       programID,
       { commitment: settings.commitment, encoding: "base64", filters: filter },
     ]);
-    setRedisAccounts(resp.result, programID);
+    await setMongoAccounts(resp.result, programID);
   }
 
   if (setWebSocket) {
@@ -39,47 +42,28 @@ export const getProgramAccounts = async (
     console.log(
       `Creating Websocket for: onProgramAccountChange of ${programID}`
     );
+
     const subId = connection.onProgramAccountChange(
       new PublicKey(programID),
       async (info) => {
         const pubkey = info.accountId.toBase58();
-        const accountInfo: ParsedKeyedAccountInfo = {
-          pubkey: pubkey,
-          account: {
-            executable: info.accountInfo.executable,
-            lamports: info.accountInfo.lamports,
-            // @ts-ignore
-            // it actually has this attr, but the type doesn't have it
-            rentEpoch: info.accountInfo.rentEpoch,
-            owner: info.accountInfo.owner.toBase58(),
-            data: [info.accountInfo.data.toString(), "base64"],
-          },
-        };
-        redisWriteClient.hset(programID, pubkey, JSON.stringify(accountInfo));
-      }
+        await addAuction(pubkey)
+      },
+      "recent",
+      SETUP_FILTERS
     );
     webSocketsIds.set(programID, subId);
   }
 };
 
-const setRedisAccounts = (
-  accounts: Array<ParsedKeyedAccountInfo>,
+const setMongoAccounts = async (
+  accounts: any,
   programID: string
 ) => {
-  for (const acc of accounts) {
+  const accPromises = accounts.map((acc: any)=> {
     const pubkey = acc.pubkey;
-    const info = acc.account;
-    const accountInfo = {
-      pubkey: pubkey,
-      account: {
-        executable: info.executable,
-        lamports: info.lamports,
-        rentEpoch: info.rentEpoch,
-        owner: info.owner,
-        data: info.data,
-      },
-    };
-    //console.log(`saving in cache ${pubkey} of ${programID}`)
-    redisWriteClient.hset(programID, pubkey, JSON.stringify(accountInfo));
-  }
+    console.log(`saving in cache ${pubkey} of ${programID}`)
+    return addAuction(pubkey)
+  })
+  await Promise.all(accPromises)
 };

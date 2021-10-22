@@ -1,4 +1,4 @@
-import { Schema, model, connect } from 'mongoose';
+import {createConnection, Schema} from "mongoose";
 
 export type MetadataDB = {
   name: string;
@@ -28,11 +28,10 @@ const AuctionSchema = new Schema<AuctionDB>({
   metadata: {type: MetadataSchema, required: true}
 });
 
-export const AuctionModel = model('Auction', AuctionSchema);
+const mongoHostname = process.env.MONGO_HOSTNAME || "localhost";
 
-main().catch(err => console.log(err));
+export const mongoUri = `mongodb://admin:test1234@${mongoHostname}:27017/`
 
-async function main() {
-  const uri = "mongodb://admin:test1234@localhost:27017/"
-  await connect(uri);
-}
+const connection = createConnection(mongoUri);
+
+export const AuctionModel = connection.model('Auction', AuctionSchema);

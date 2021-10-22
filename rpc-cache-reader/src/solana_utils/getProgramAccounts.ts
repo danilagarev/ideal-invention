@@ -1,30 +1,41 @@
 import { JSONRPCParams } from "json-rpc-2.0";
-import { redisReadClient } from "../../../rpc-cache-utils/src/connection";
+import {
+  mongoDBClient,
+} from "../../../rpc-cache-utils/src/connection";
 import { ParsedKeyedAccountInfo } from "../../../rpc-cache-utils/src/utils";
 import bs58 from "bs58";
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const getProgramAccounts = async (
   params: Partial<JSONRPCParams> | undefined
-): Promise<Array<any>> => {
-  return new Promise((resolve, reject) => {
+) => {
     if (params) {
       const programID = (params as any[])[0];
-      const filters = (params as any[])[1];
-      redisReadClient.hvals(programID, function (err, reply) {
-        if (!reply || reply.length === 0 || err) {
-          if (err) console.log(err);
-          reject(err);
-        } else {
-          const parsed: Array<ParsedKeyedAccountInfo> = reply.map((acc) =>
-            JSON.parse(acc)
-          );
-          resolve(filterProgramAccounts(parsed, filters, programID));
-        }
-      });
-    } else {
-      reject("no parameters");
+      // const filters = (params as any[])[1];
+      await mongoDBClient.connect();
+
+      const db = mongoDBClient.db('rpcClient');
+
+      const collection = db.collection('programAddresses');
+      const programResult = await collection.findOne({programId: programID});
+      console.log(programResult);
+
+      return programResult;
     }
-  });
+      // redisReadClient.hvals(programID, function (err, reply) {
+      //   if (!reply || reply.length === 0 || err) {
+      //     if (err) console.log(err);
+      //     reject(err);
+      //   } else {
+      //     const parsed: Array<ParsedKeyedAccountInfo> = reply.map((acc) =>
+      //       JSON.parse(acc)
+      //     );
+      //     resolve(filterProgramAccounts(parsed, filters, programID));
+      //   }
+      // });
+    // } else {
+    //   reject("no parameters");
+    // }
 };
 
 const filterProgramAccounts = (
