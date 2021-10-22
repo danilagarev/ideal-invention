@@ -23,6 +23,12 @@ STORE_ADDRESS=<YOUR_STORE_PUBKEY>
 Building:
 
 ```bash
+./build.sh
+```
+
+OR you can do it manually:
+
+```bash
 tsc
 ```
 
