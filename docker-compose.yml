@@ -21,7 +21,7 @@ services:
     command: node ./dist/lib/rpc-cache-reader/src/reader
     working_dir: /app
     ports:
-      - "3000:3000"
+      - ${READER_PORT}:${READER_PORT}
     depends_on:
       - mongodb
       - writer
