@@ -46,7 +46,7 @@ async function prepareAuction(auctionManager: any): Promise<AuctionDB> {
     address: auction.pubkey.toBase58(),
     metadata: metadatadb,
     state: auctionState,
-    price: auction.data.priceFloor.minPrice?.toNumber()
+    price: auction.data.priceFloor.minPrice?.toString()
   };
 }
 
