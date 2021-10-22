@@ -9,7 +9,7 @@ export type MetadataDB = {
 // Document interface
 export interface AuctionDB {
   address: string;
-  price: number;
+  price: string;
   state: string;
   metadata: MetadataDB;
 }
@@ -23,7 +23,7 @@ const MetadataSchema = new Schema<MetadataDB>({
 
 const AuctionSchema = new Schema<AuctionDB>({
   address: { type: String, required: true },
-  price: { type: Number, required: true },
+  price: { type: String, required: true },
   state: { type: String, required: true },
   metadata: {type: MetadataSchema, required: true}
 });
