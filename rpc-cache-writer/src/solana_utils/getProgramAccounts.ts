@@ -28,7 +28,6 @@ export const getProgramAccounts = async (
       programID,
       { commitment: settings.commitment, encoding: "base64", filters: filter },
     ]);
-    console.log(resp)
     await setMongoAccounts(resp.result, programID);
   }
 
@@ -61,9 +60,10 @@ const setMongoAccounts = async (
   accounts: any,
   programID: string
 ) => {
-  for (const acc of accounts) {
+  const accPromises = accounts.map((acc: any)=> {
     const pubkey = acc.pubkey;
     console.log(`saving in cache ${pubkey} of ${programID}`)
-    await addAuction(pubkey)
-  }
+    return addAuction(pubkey)
+  })
+  await Promise.all(accPromises)
 };
