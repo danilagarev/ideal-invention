@@ -9,5 +9,12 @@ export async function createAuction(auction: AuctionDB): Promise<void> {
 }
 
 export async function findAllAuctions(): Promise<AuctionDB[]> {
-  return AuctionModel.find({}, {_id: 0, __v: 0, "metadata._id": 0});
+  return AuctionModel.find({}, {
+    _id: 0,
+    __v: 0,
+    "metadata._id": 0,
+    "details.properties.files._id": 0,
+    "details.properties.creators._id": 0,
+    "details._id": 0,
+  });
 }
