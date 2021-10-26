@@ -1,6 +1,7 @@
 import {programs} from "@metaplex/js";
-import {AuctionDB, MetadataDB} from "../../mongo/src/models";
+import {AuctionDB, NFTDetails} from "../../mongo/src/models";
 import {connection} from "./constants";
+import {default as axios} from "axios";
 
 const { metaplex: { Store, AuctionManager }, metadata: { Metadata }, vault: { Vault } } = programs;
 
@@ -16,14 +17,19 @@ export async function getAuctionsByAuctionManager(aucManagerPubkey: string): Pro
   const auctionManager = await AuctionManager.load(connection, aucManagerPubkey);
   return await prepareAuction(auctionManager);
 }
-async function getAuctionStateByNum(num: number) {
-  switch (num) {
-    case 0:
-      return "Created"
-    case 1:
-      return "Started"
-    case 2:
-      return "Ended"
+
+async function getMetadataFromJson(uri: string): Promise<NFTDetails> {
+  const req = await axios.get(uri);
+  const data = req.data;
+  return {
+    name: data.name,
+    symbol: data.symbol,
+    description: data.description,
+    seller_fee_basis_points: data.seller_fee_basis_points,
+    image: data.image,
+    external_url: data.external_url,
+    properties: data.properties,
+    attributes: data.attributes
   }
 }
 
@@ -34,19 +40,20 @@ async function prepareAuction(auctionManager: any): Promise<AuctionDB> {
   const safetyDepositBox = (await vault.getSafetyDepositBoxes(connection))[0];
   const metadata = (await Metadata.findMany(connection,
     {mint: safetyDepositBox.data.tokenMint}))[0].data;
-  const auctionState = await getAuctionStateByNum(auction.data.state);
-
-  const metadatadb: MetadataDB = <MetadataDB>{
-    name: metadata.data.name,
-    symbol: metadata.data.symbol,
-    uri: metadata.data.uri
-  }
+  const NFTDetailsDB = await getMetadataFromJson(metadata.data.uri);
 
   return <AuctionDB>{
     address: auction.pubkey.toBase58(),
-    metadata: metadatadb,
-    state: auctionState,
-    price: auction.data.priceFloor.minPrice?.toString()
+    metadata: {
+      name: metadata.data.name,
+      symbol: metadata.data.symbol,
+      url: metadata.data.uri
+    },
+    price: auction.data.priceFloor.minPrice?.toString(),
+    state: auction.data.state,
+    vaultPublicKey: vault.pubkey.toBase58(),
+    auctionTokenMint: auction.data.tokenMint,
+    details: NFTDetailsDB
   };
 }
 
