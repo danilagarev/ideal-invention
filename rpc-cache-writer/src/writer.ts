@@ -1,6 +1,6 @@
 import { getProgramAccounts } from "./solana_utils/getProgramAccounts";
 import { settings } from "../../rpc-cache-utils/src/config";
-import {AuctionManagerModel} from "../../mongo/src/models";
+import {AuctionManagerModel, TokenSwapModel} from "../../mongo/src/models";
 
 const callCorrespondingCachedMethod = async (
   name: string,
@@ -26,6 +26,7 @@ const callCorrespondingCachedMethod = async (
   // TODO: fix hardcode, find better solution.
   console.log("Refreshing database...")
   await AuctionManagerModel.deleteMany();
+  await TokenSwapModel.deleteMany();
 
   for (const name of settings.cacheFunctions.names) {
     const params = (settings.cacheFunctions.params as Record<string, any>)[

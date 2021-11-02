@@ -23,7 +23,8 @@
   },
   "main": "./dist/lib/rpc-cache-connection/src/index.js",
   "dependencies": {
-    "@metaplex/js": "^3.0.0",
+    "@metaplex/js": "^3.1.0",
+    "@solana/spl-token-swap": "^0.1.2",
     "@solana/web3.js": "^1.10.1",
     "aws-sdk": "^2.905.0",
     "axios": "^0.21.4",

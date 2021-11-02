@@ -1,77 +1,13 @@
-import { JSONRPCServer } from "json-rpc-2.0";
 import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
-import { getProgramAccounts } from "./solana_utils/getProgramAccounts";
-import { settings } from "../../rpc-cache-utils/src/config";
 import {findAllAuctions} from "../../mongo/src/crud/auction";
-
-const server = new JSONRPCServer();
+import {getAllTokenSwaps} from "../../mongo/src/crud/tokenSwap";
+import {TOKEN_SWAP_PROGRAM_ID} from "../../rpc-cache-utils/src/constants";
 
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
-
-for (const name of settings.cacheFunctions.names) {
-  switch (name) {
-    case "getProgramAccounts": {
-      server.addMethod("getProgramAccounts", getProgramAccounts);
-      break;
-    }
-    default:
-      break;
-  }
-}
-
-// app.post("/", (req, res) => {
-//   const jsonRPCRequest = req.body;
-//   // server.receive takes a JSON-RPC request and returns a Promise of a JSON-RPC response.
-//   console.log("received request", jsonRPCRequest.method, jsonRPCRequest.params);
-//   const functionNames = settings.cacheFunctions.names;
-//   if (functionNames.indexOf(jsonRPCRequest.method) >= 0) {
-//     console.log("RPC method found in the config file");
-//     server.receive(jsonRPCRequest).then((jsonRPCResponse) => {
-//       console.log(jsonRPCResponse)
-//
-//       if (jsonRPCResponse && jsonRPCResponse.error) {
-//         console.log(
-//           "rejected: " + util.inspect(jsonRPCResponse.error, { depth: null })
-//         );
-//         (connection as any)
-//           ._rpcRequest(jsonRPCRequest.method, jsonRPCRequest.params)
-//           .catch((e: any) => {
-//             jsonRPCResponse.error = e;
-//             res.json(jsonRPCResponse);
-//           })
-//           .then((resp: JSONRPCResponse) => {
-//             res.json(resp);
-//           });
-//       } else if (jsonRPCResponse && !jsonRPCResponse.error) {
-//         res.json(jsonRPCResponse);
-//       } else {
-//         res.sendStatus(204);
-//       }
-//     });
-//   } else {
-//     console.log("not handled");
-//     (connection as any)
-//       ._rpcRequest(jsonRPCRequest.method, jsonRPCRequest.params)
-//       .catch((e: any) => {
-//         res.json({ error: e });
-//       })
-//       .then((resp: JSONRPCResponse) => {
-//         res.json(resp);
-//       });
-//   }
-// });
-//
-// app.get("/settings", (req, res) => {
-//   res.json(JSON.stringify(settings));
-// });
-//
-// app.get("/health", (req, res) => {
-//   res.sendStatus(200);
-// });
 
 app.get("/auctions", async (req, res , next) => {
   try {
@@ -82,4 +18,13 @@ app.get("/auctions", async (req, res , next) => {
   }
 })
 
-app.listen(process.env.READER_PORT);
+app.get("/pools", async (req, res , next) => {
+  try {
+    const pools = await getAllTokenSwaps(TOKEN_SWAP_PROGRAM_ID);
+    res.json(pools);
+  }catch (e) {
+    next(e)
+  }
+})
+
+app.listen(3000);

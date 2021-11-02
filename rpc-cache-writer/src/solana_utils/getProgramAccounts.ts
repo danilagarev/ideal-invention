@@ -8,6 +8,8 @@ import {
 import * as util from "util";
 import {addAuction} from "../../../common/src/auction";
 import {SETUP_FILTERS} from "../../../metaplex/src/constants";
+import {TOKEN_SWAP_PROGRAM_ID} from "../../../rpc-cache-utils/src/constants";
+import {saveAllTokenSwap} from "../../../mongo/src/crud/tokenSwap";
 
 const webSocketsIds: Map<string, number> = new Map();
 
@@ -24,11 +26,12 @@ export const getProgramAccounts = async (
       )}`
     );
 
-    const resp = await (connection as any)._rpcRequest("getProgramAccounts", [
-      programID,
-      { commitment: settings.commitment, encoding: "base64", filters: filter },
-    ]);
-    await setMongoAccounts(resp.result, programID);
+    const resp = await connection.getProgramAccounts(new PublicKey(programID), {filters: filter});
+    if (programID === TOKEN_SWAP_PROGRAM_ID) {
+      await saveAllTokenSwap(resp, programID);
+    } else {
+      await setMongoAccounts(resp, programID);
+    }
   }
 
   if (setWebSocket) {
@@ -42,17 +45,18 @@ export const getProgramAccounts = async (
     console.log(
       `Creating Websocket for: onProgramAccountChange of ${programID}`
     );
-
-    const subId = connection.onProgramAccountChange(
-      new PublicKey(programID),
-      async (info) => {
-        const pubkey = info.accountId.toBase58();
-        await addAuction(pubkey)
-      },
-      "recent",
-      SETUP_FILTERS
-    );
-    webSocketsIds.set(programID, subId);
+    if (programID !== TOKEN_SWAP_PROGRAM_ID) {
+      const subId = connection.onProgramAccountChange(
+        new PublicKey(programID),
+        async (info) => {
+          const pubkey = info.accountId.toBase58();
+          await addAuction(pubkey)
+        },
+        "recent",
+        SETUP_FILTERS
+      );
+      webSocketsIds.set(programID, subId);
+    }
   }
 };
 

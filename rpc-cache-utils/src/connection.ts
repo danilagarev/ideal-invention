@@ -7,7 +7,7 @@ dotenv.config();
 
 console.log("creating connection");
 export const connection = new Connection(
-  "https://api.devnet.solana.com/",
+  "https://svak.rpcpool.com/999df3e1e76e5a78cc003c8a8ca2",
   "recent"
 );
 // export const redisReadClient = getRedisClient(RedisClientUser.Reader);

@@ -97,6 +97,43 @@ const AuctionManagerSchema = new Schema<AuctionManagerDB>({
   details: { type: NFTDetailsSchema, required: true },
 });
 
+// const tokenSwapSchema = new Schema(
+//   {
+//     version: Number,
+//     isInitialized: Boolean,
+//     nonce: Number,
+//     tokenProgramId: String,
+//     tokenAccountA: Schema.Types.Mixed,
+//     tokenAccountB: Schema.Types.Mixed,
+//     tokenPool: String,
+//     mintA: String,
+//     mintB: String,
+//     feeAccount: String,
+//     tradeFeeNumerator: Number,
+//     tradeFeeDenominator: Number,
+//     ownerTradeFeeNumerator: Number,
+//     ownerTradeFeeDenominator: Number,
+//     ownerWithdrawFeeNumerator: Number,
+//     ownerWithdrawFeeDenominator: Number,
+//     hostFeeNumerator: Number,
+//     hostFeeDenominator: Number,
+//     curveType: Number,
+//     curveParameters: Buffer
+//   },
+//   {
+//     typeKey: "$type",
+//     strict: false
+//   });
+
+const tokenSwapSchema = new Schema(
+  {
+    programID: String
+  },
+  {
+    typeKey: "$type",
+    strict: false
+  });
+
 const mongoHostname = process.env.MONGO_HOSTNAME || "localhost";
 
 export const mongoUri = `mongodb://admin:test1234@${mongoHostname}:27017/`
@@ -104,3 +141,4 @@ export const mongoUri = `mongodb://admin:test1234@${mongoHostname}:27017/`
 const connection = createConnection(mongoUri);
 
 export const AuctionManagerModel = connection.model('AuctionManager', AuctionManagerSchema);
+export const TokenSwapModel = connection.model('TokenSwap', tokenSwapSchema);
