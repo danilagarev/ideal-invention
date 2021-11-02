@@ -3,8 +3,12 @@ import {createConnection, Schema} from "mongoose";
 /* eslint-disable camelcase */
 import type { AuctionState } from '@metaplex/js/lib/programs/auction';
 
-export interface AuctionDB {
-  address: string; // auction.pubkey
+export interface AuctionManagerDB {
+  auction: string; // auction.pubkey
+  manager: string; // manager.pubkey
+  seller: string; // seller.pubkey
+  safetyBox: string; // auction.pubkey
+  vault: string; // vault.pubkey
   metadata: {
     name: string;
     url: string;
@@ -12,7 +16,6 @@ export interface AuctionDB {
   };
   price: string; // auction.data.priceFloor.minPrice
   state: AuctionState;
-  vaultPublicKey: string;
   auctionTokenMint: string; // auction.data.tokenMint = SOL
   details: NFTDetails; // from uri (JSON)
 }
@@ -77,8 +80,12 @@ const NFTDetailsSchema = new Schema<NFTDetails>({
     }],
 }, {typeKey: '$type'});
 
-const AuctionSchema = new Schema<AuctionDB>({
-  address: { type: String, required: true },
+const AuctionManagerSchema = new Schema<AuctionManagerDB>({
+  auction: { type: String, required: true },
+  seller: { type: String, required: true },
+  manager: { type: String, required: true },
+  safetyBox: { type: String, required: true },
+  vault: { type: String, required: true },
   metadata: {
     name: String,
     url: String,
@@ -86,7 +93,6 @@ const AuctionSchema = new Schema<AuctionDB>({
   },
   price: { type: String, required: true },
   state: { type: Number, required: true },
-  vaultPublicKey: { type: String, required: true },
   auctionTokenMint: { type: String, required: true },
   details: { type: NFTDetailsSchema, required: true },
 });
@@ -97,4 +103,4 @@ export const mongoUri = `mongodb://admin:test1234@${mongoHostname}:27017/`
 
 const connection = createConnection(mongoUri);
 
-export const AuctionModel = connection.model('Auction', AuctionSchema);
+export const AuctionManagerModel = connection.model('AuctionManager', AuctionManagerSchema);
