@@ -19,18 +19,29 @@ export class dbSwitcher {
     await SwitcherModel.findOneAndUpdate({
     serviceName: this.serviceName,
   }, {
-    tableName: this.mainTable.modelName,
-    serviceName: this.serviceName
+      readerTableName: this.mainTable.modelName,
+      writerTableName: this.mainTable.modelName,
+      serviceName: this.serviceName
   }, {
     upsert: true
   })}
 
-  async switchTable():Promise<Model<any>> {
+  async switchReadTable():Promise<void> {
+    await SwitcherModel.findOneAndUpdate({
+      serviceName: this.serviceName,
+    }, {
+      readerTableName: this.mainTable.modelName,
+      serviceName: this.serviceName
+    }, {
+      upsert: true
+    })
+  }
+  async switchWriteTable():Promise<Model<any>> {
     [this.mainTable, this.reserveTable] =[ this.reserveTable, this.mainTable]
     await SwitcherModel.findOneAndUpdate({
       serviceName: this.serviceName,
     }, {
-      tableName: this.mainTable.modelName,
+      writerTableName: this.mainTable.modelName,
       serviceName: this.serviceName
     }, {
       upsert: true

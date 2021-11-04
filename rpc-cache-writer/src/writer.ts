@@ -12,14 +12,22 @@ const callCorrespondingCachedMethod = async (
   name: string,
   param: any,
   filters: Array<any> | undefined,
-  setWebSocket = false
+  setWebSocket = false,
+  auctionSwitcher: dbSwitcher,
+  tokenSwapSwitcher: dbSwitcher
 ): Promise<void> => {
   switch (name) {
     case "getProgramAccounts": {
       if (
         settings.cacheFunctions.params.getProgramAccounts.indexOf(param) >= 0
       ) {
-        await getProgramAccounts(param, filters, setWebSocket);
+        await getProgramAccounts(
+          param,
+          filters,
+          setWebSocket,
+          auctionSwitcher,
+          tokenSwapSwitcher
+        );
       }
       break;
     }
@@ -29,15 +37,15 @@ const callCorrespondingCachedMethod = async (
 };
 
 async function startWriting(
-  firstSwitch: dbSwitcher,
-  secondSwitch: dbSwitcher) {
+  auctionSwitcher: dbSwitcher,
+  tokenSwapSwitcher: dbSwitcher) {
   console.log("Refreshing database...");
-  await firstSwitch.reserveTable.deleteMany();
-  await secondSwitch.reserveTable.deleteMany();
-  console.log("firstTableMain",firstSwitch.mainTable.modelName)
-  console.log("firstTableReserve",firstSwitch.reserveTable.modelName)
-  console.log("secondTableReserve",secondSwitch.mainTable.modelName)
-  console.log("secondTableMain",secondSwitch.reserveTable.modelName)
+  await auctionSwitcher.reserveTable.deleteMany();
+  await tokenSwapSwitcher.reserveTable.deleteMany();
+  console.log("firstTableMain", auctionSwitcher.mainTable.modelName)
+  console.log("firstTableReserve", auctionSwitcher.reserveTable.modelName)
+  console.log("secondTableMain", tokenSwapSwitcher.mainTable.modelName)
+  console.log("secondTableReserve", tokenSwapSwitcher.reserveTable.modelName)
 
   for (const name of settings.cacheFunctions.names) {
     const params = (settings.cacheFunctions.params as Record<string, any>)[
@@ -47,7 +55,14 @@ async function startWriting(
       name
       ];
     if (!params) {
-      await callCorrespondingCachedMethod(name, undefined, undefined, true);
+      await callCorrespondingCachedMethod(
+        name,
+        undefined,
+        undefined,
+        true,
+        auctionSwitcher,
+        tokenSwapSwitcher
+      );
     } else {
       console.log(
         `Populating cache with method: ${name} for params: ${params}`
@@ -57,7 +72,14 @@ async function startWriting(
         if (filterByName) {
           filters = filterByName[mainParam];
         }
-        await callCorrespondingCachedMethod(name, mainParam, filters, true);
+        await callCorrespondingCachedMethod(
+          name,
+          mainParam,
+          filters,
+          true,
+          auctionSwitcher,
+          tokenSwapSwitcher
+          );
       }
     }
   }
@@ -86,8 +108,7 @@ async function startWriting(
     'Switching database',
     () => { return startWriting(AuctionManagerSwitch, TokenSwapSwitch)
       .then(async () => {
-        await TokenSwapSwitch.switchTable();
-        await AuctionManagerSwitch.switchTable();
+        console.log("Started writing")
       }) },
     (err: Error) => { console.log(err)}
   )

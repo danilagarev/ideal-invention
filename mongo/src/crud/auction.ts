@@ -12,7 +12,7 @@ export async function createAuction(auctionManager: AuctionManagerDB): Promise<v
   console.log("switcher", switcher)
   if (switcher){
     // @ts-ignore
-    const model = mongoose.model(switcher.tableName)
+    const model = mongoose.model(switcher.writerTableName)
     console.log(model)
     await model.findOneAndUpdate({manager: auctionManager.manager},
       auctionManager, {
@@ -26,7 +26,7 @@ export async function bulkAuctions(auctionManagers: Array<AuctionManagerDB>): Pr
   console.log("switcher", switcher)
   let model;
   // @ts-ignore
-  switch (switcher.tableName) {
+  switch (switcher.writerTableName) {
     case 'AuctionManager':
       model = AuctionManagerModel;
       break;
@@ -52,7 +52,7 @@ export async function findAllAuctions(): Promise<AuctionManagerDB[] | null> {
   console.log("switcher", switcher)
   let model;
   // @ts-ignore
-  switch (switcher.tableName) {
+  switch (switcher.readerTableName) {
     case 'AuctionManager':
       model = AuctionManagerModel;
       break;

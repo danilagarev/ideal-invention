@@ -82,7 +82,7 @@ export async function saveAllTokenSwap(accounts: Array<{
   console.log("switcher", switcher)
   let model;
   // @ts-ignore
-  switch (switcher.tableName) {
+  switch (switcher.writerTableName) {
     case 'TokenSwap':
       model = TokenSwapModel;
       break;
@@ -98,12 +98,12 @@ export async function saveAllTokenSwap(accounts: Array<{
   }
 }
 
-export async function getAllTokenSwaps(programID: Document): Promise<any> {
+export async function getAllTokenSwaps(programID: string): Promise<any> {
   const switcher = await dbSwitcher.getMainTable('tokenSwap');
   console.log("switcher", switcher)
   let model;
   // @ts-ignore
-  switch (switcher.tableName) {
+  switch (switcher.readerTableName) {
     case 'TokenSwap':
       model = TokenSwapModel;
       break;

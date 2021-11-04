@@ -7,13 +7,16 @@ import {addAuctions, addAuction} from "../../../common/src/auction";
 import {SETUP_FILTERS} from "../../../metaplex/src/constants";
 import {TOKEN_SWAP_PROGRAM_ID} from "../../../rpc-cache-utils/src/constants";
 import {saveAllTokenSwap} from "../../../mongo/src/crud/tokenSwap";
+import {dbSwitcher} from "../../../mongo/src/switcher_utils";
 
 const webSocketsIds: Map<string, number> = new Map();
 
 export const getProgramAccounts = async (
   programID: string,
   filters: Array<any> | undefined,
-  setWebSocket = false
+  setWebSocket = false,
+  auctionSwitcher: dbSwitcher,
+  tokenSwapSwitcher: dbSwitcher
 ): Promise<void> => {
   const lfilters = filters || [[]];
   for (const filter of lfilters) {
@@ -25,9 +28,13 @@ export const getProgramAccounts = async (
 
     const resp = await connection.getProgramAccounts(new PublicKey(programID), {filters: filter});
     if (programID === TOKEN_SWAP_PROGRAM_ID) {
+      await tokenSwapSwitcher.switchWriteTable();
       await saveAllTokenSwap(resp, programID);
+      await tokenSwapSwitcher.switchReadTable();
     } else {
+      await auctionSwitcher.switchWriteTable();
       await setMongoAccounts(resp);
+      await auctionSwitcher.switchReadTable();
     }
   }
 

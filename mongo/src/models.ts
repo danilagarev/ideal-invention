@@ -136,7 +136,8 @@ const tokenSwapSchema = new Schema(
 
 const switcherSchema = new Schema(
   {
-    tableName: String,
+    readerTableName: String,
+    writerTableName: String,
     serviceName: String,
   },
   {
