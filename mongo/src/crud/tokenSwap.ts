@@ -1,11 +1,14 @@
-import {TokenSwapModel} from "../models";
+import {
+  TokenSwapModel,
+  TokenSwapReserveModel
+} from "../models";
 import {Numberu64, TokenSwapLayout} from "@solana/spl-token-swap"
 import {AccountInfo, PublicKey} from "@solana/web3.js"
 import {connection} from "../../../metaplex/src/constants";
+import {dbSwitcher} from "../switcher_utils";
 
 
 async function prepareTokenSwap(tokenSwapData: any, programID: string) {
-  console.log(tokenSwapData)
   const tokenPool = new PublicKey(tokenSwapData.tokenPool).toBase58();
   const tokenProgramId = new PublicKey(tokenSwapData.tokenProgramId).toBase58();
   const feeAccount = new PublicKey(tokenSwapData.feeAccount).toBase58();
@@ -69,20 +72,49 @@ async function prepareTokenSwap(tokenSwapData: any, programID: string) {
   }
 }
 
-async function prepareTokenSwap2(tokenSwapData: any, programID: string){
-  tokenSwapData.tokenAccountA = await connection.getParsedAccountInfo(new PublicKey(tokenSwapData.tokenAccountA));
-  tokenSwapData.tokenAccountB = await connection.getParsedAccountInfo(new PublicKey(tokenSwapData.tokenAccountB));
-  tokenSwapData.programID = programID;
-  return tokenSwapData;
-}
-
-export async function saveAllTokenSwap(accounts: Array<{account: AccountInfo<Buffer>, pubkey: PublicKey}>, programID: string) {
+export async function saveAllTokenSwap(accounts: Array<{
+  account: AccountInfo<Buffer>,
+  pubkey: PublicKey
+}>, programID: string): Promise<void> {
   const promises = accounts.map(item => prepareTokenSwap(TokenSwapLayout.decode(Buffer.from(item.account.data)), programID));
   const tokenSwap = await Promise.all(promises);
-  // console.log(tokenSwap);
-  await TokenSwapModel.insertMany(tokenSwap);
+  const switcher = await dbSwitcher.getMainTable('tokenSwap');
+  console.log("switcher", switcher)
+  let model;
+  // @ts-ignore
+  switch (switcher.tableName) {
+    case 'TokenSwap':
+      model = TokenSwapModel;
+      break;
+    case 'TokenSwapReserve':
+      model = TokenSwapReserveModel;
+      break;
+  }
+  console.log(model)
+  if (model) {
+    await model.insertMany(tokenSwap);
+  } else {
+    console.log("Model from the switcher not found")
+  }
 }
 
-export async function getAllTokenSwaps(programID: string) {
-  return TokenSwapModel.find({programID: programID});
+export async function getAllTokenSwaps(programID: Document): Promise<any> {
+  const switcher = await dbSwitcher.getMainTable('tokenSwap');
+  console.log("switcher", switcher)
+  let model;
+  // @ts-ignore
+  switch (switcher.tableName) {
+    case 'TokenSwap':
+      model = TokenSwapModel;
+      break;
+    case 'TokenSwapReserve':
+      model = TokenSwapReserveModel;
+      break;
+  }
+  console.log(model)
+  if (model) {
+    return model.find({programID: programID}, {_id: 0});
+  } else {
+    console.log("Model from the the switcher not found")
+  }
 }

@@ -7,16 +7,16 @@ export const settings = {
     names: ["getProgramAccounts"],
     params: {
       getProgramAccounts: [
-        // "p1exdMJcjVao65QdewkaZRUnU6VPSXhus9n2GzWfh98",
+        "p1exdMJcjVao65QdewkaZRUnU6VPSXhus9n2GzWfh98",
         TOKEN_SWAP_PROGRAM_ID,
       ],
     },
     filters: {
       getProgramAccounts: {
-        // "p1exdMJcjVao65QdewkaZRUnU6VPSXhus9n2GzWfh98": [
-        //   SETUP_FILTERS
-        // ],
-        "SwaPpA9LAaLfeLi3a68M4DjnLqgtticKg6CnyNwgAC8": [
+        "p1exdMJcjVao65QdewkaZRUnU6VPSXhus9n2GzWfh98": [
+          SETUP_FILTERS
+        ],
+        [TOKEN_SWAP_PROGRAM_ID]: [
           POOL_FILTERS
         ],
       },

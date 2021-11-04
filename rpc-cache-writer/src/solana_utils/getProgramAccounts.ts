@@ -2,11 +2,8 @@ import { PublicKey } from "@solana/web3.js";
 import {
   connection,
 } from "../../../rpc-cache-utils/src/connection";
-import {
-  settings
-} from "../../../rpc-cache-utils/src/config";
 import * as util from "util";
-import {addAuction} from "../../../common/src/auction";
+import {addAuctions, addAuction} from "../../../common/src/auction";
 import {SETUP_FILTERS} from "../../../metaplex/src/constants";
 import {TOKEN_SWAP_PROGRAM_ID} from "../../../rpc-cache-utils/src/constants";
 import {saveAllTokenSwap} from "../../../mongo/src/crud/tokenSwap";
@@ -30,7 +27,7 @@ export const getProgramAccounts = async (
     if (programID === TOKEN_SWAP_PROGRAM_ID) {
       await saveAllTokenSwap(resp, programID);
     } else {
-      await setMongoAccounts(resp, programID);
+      await setMongoAccounts(resp);
     }
   }
 
@@ -61,13 +58,8 @@ export const getProgramAccounts = async (
 };
 
 const setMongoAccounts = async (
-  accounts: any,
-  programID: string
+  accounts: any
 ) => {
-  const accPromises = accounts.map((acc: any)=> {
-    const pubkey = acc.pubkey;
-    console.log(`saving in cache ${pubkey} of ${programID}`)
-    return addAuction(pubkey)
-  })
-  await Promise.all(accPromises)
+  const accPubkeys = accounts.map((acc: any)=> acc.pubkey);
+  await addAuctions(accPubkeys)
 };

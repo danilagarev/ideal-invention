@@ -42,7 +42,6 @@ async function prepareAuction(auctionManager: any): Promise<AuctionManagerDB> {
   const metadata = (await Metadata.findMany(connection,
     {mint: safetyDepositBox.data.tokenMint}))[0].data;
   const NFTDetailsDB = await getMetadataFromJson(metadata.data.uri);
-
   return <AuctionManagerDB>{
     auction: auction.pubkey.toBase58(),
     manager: auctionManager.pubkey.toBase58(),

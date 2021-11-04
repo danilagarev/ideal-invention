@@ -1,6 +1,12 @@
 import { getProgramAccounts } from "./solana_utils/getProgramAccounts";
 import { settings } from "../../rpc-cache-utils/src/config";
-import {AuctionManagerModel, TokenSwapModel} from "../../mongo/src/models";
+import {
+  AuctionManagerModel,
+  AuctionReserveManagerModel,
+  TokenSwapModel, TokenSwapReserveModel
+} from "../../mongo/src/models";
+import {dbSwitcher} from "../../mongo/src/switcher_utils";
+import {AsyncTask, ToadScheduler, SimpleIntervalJob} from "toad-scheduler";
 
 const callCorrespondingCachedMethod = async (
   name: string,
@@ -22,19 +28,24 @@ const callCorrespondingCachedMethod = async (
   }
 };
 
-(async () => {
-  // TODO: fix hardcode, find better solution.
-  console.log("Refreshing database...")
-  await AuctionManagerModel.deleteMany();
-  await TokenSwapModel.deleteMany();
+async function startWriting(
+  firstSwitch: dbSwitcher,
+  secondSwitch: dbSwitcher) {
+  console.log("Refreshing database...");
+  await firstSwitch.reserveTable.deleteMany();
+  await secondSwitch.reserveTable.deleteMany();
+  console.log("firstTableMain",firstSwitch.mainTable.modelName)
+  console.log("firstTableReserve",firstSwitch.reserveTable.modelName)
+  console.log("secondTableReserve",secondSwitch.mainTable.modelName)
+  console.log("secondTableMain",secondSwitch.reserveTable.modelName)
 
   for (const name of settings.cacheFunctions.names) {
     const params = (settings.cacheFunctions.params as Record<string, any>)[
       name
-    ];
+      ];
     const filterByName = (settings.cacheFunctions.filters as Record<any, any>)[
       name
-    ];
+      ];
     if (!params) {
       await callCorrespondingCachedMethod(name, undefined, undefined, true);
     } else {
@@ -51,4 +62,39 @@ const callCorrespondingCachedMethod = async (
     }
   }
   console.log("Finished Populating cache");
+}
+
+(async () => {
+  const scheduler = new ToadScheduler()
+  // TODO: fix hardcode, find better solution.
+  console.log("Initialize database...");
+  const AuctionManagerSwitch = new dbSwitcher({
+    mainTable: AuctionManagerModel,
+    reserveTable: AuctionReserveManagerModel,
+    serviceName: 'auction'
+  })
+  const TokenSwapSwitch = new dbSwitcher({
+    mainTable: TokenSwapModel,
+    reserveTable: TokenSwapReserveModel,
+    serviceName: 'tokenSwap'
+  })
+
+  await TokenSwapSwitch.init();
+  await AuctionManagerSwitch.init();
+
+  const task = new AsyncTask(
+    'Switching database',
+    () => { return startWriting(AuctionManagerSwitch, TokenSwapSwitch)
+      .then(async () => {
+        await TokenSwapSwitch.switchTable();
+        await AuctionManagerSwitch.switchTable();
+      }) },
+    (err: Error) => { console.log(err)}
+  )
+  const job = new SimpleIntervalJob({
+    minutes: 2,
+    runImmediately: true
+  }, task)
+
+  scheduler.addSimpleIntervalJob(job)
 })();

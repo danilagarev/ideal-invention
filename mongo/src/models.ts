@@ -134,6 +134,16 @@ const tokenSwapSchema = new Schema(
     strict: false
   });
 
+const switcherSchema = new Schema(
+  {
+    tableName: String,
+    serviceName: String,
+  },
+  {
+    typeKey: "$type",
+    strict: false
+  });
+
 const mongoHostname = process.env.MONGO_HOSTNAME || "localhost";
 
 export const mongoUri = `mongodb://admin:test1234@${mongoHostname}:27017/`
@@ -141,4 +151,7 @@ export const mongoUri = `mongodb://admin:test1234@${mongoHostname}:27017/`
 const connection = createConnection(mongoUri);
 
 export const AuctionManagerModel = connection.model('AuctionManager', AuctionManagerSchema);
+export const AuctionReserveManagerModel = connection.model('AuctionReserveManager', AuctionManagerSchema);
 export const TokenSwapModel = connection.model('TokenSwap', tokenSwapSchema);
+export const TokenSwapReserveModel = connection.model('TokenSwapReserve', tokenSwapSchema);
+export const SwitcherModel = connection.model('Switcher', switcherSchema);
