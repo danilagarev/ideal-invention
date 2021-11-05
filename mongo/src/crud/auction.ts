@@ -4,20 +4,30 @@ import {
   AuctionReserveManagerModel
 } from "../models";
 import {dbSwitcher} from "../switcher_utils";
-import * as mongoose from "mongoose";
 
 export async function createAuction(auctionManager: AuctionManagerDB): Promise<void> {
-  console.log("auctionManager", auctionManager)
   const switcher = await dbSwitcher.getMainTable('auction');
   console.log("switcher", switcher)
-  if (switcher){
-    // @ts-ignore
-    const model = mongoose.model(switcher.writerTableName)
-    console.log(model)
+  let model;
+  // @ts-ignore
+  switch (switcher.writerTableName) {
+    case 'AuctionManager':
+      model = AuctionManagerModel;
+      break;
+    case 'AuctionReserveManager':
+      model = AuctionReserveManagerModel;
+      break;
+    default:
+      model = AuctionManagerModel;
+      break;
+  }
+  if (model){
     await model.findOneAndUpdate({manager: auctionManager.manager},
       auctionManager, {
         upsert: true
       });
+  } else {
+    console.log('Model from the switcher not found')
   }
 }
 

@@ -9,7 +9,7 @@ dotenv.config();
 console.log("creating connection");
 export const connection = new Connection(
   SOLANA_RPC,
-  "recent"
+  'confirmed'
 );
 // export const redisReadClient = getRedisClient(RedisClientUser.Reader);
 // export const redisWriteClient = getRedisClient(RedisClientUser.Writer);

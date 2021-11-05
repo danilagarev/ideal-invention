@@ -8,7 +8,7 @@ const {metaplex: {MetaplexKey}} = programs;
 
 export const SOLANA_RPC = process.env.SOLANA_RPC_ENDPOINT || "https://api.devnet.solana.com";
 
-export const connection = new Connection(SOLANA_RPC);
+export const connection = new Connection(SOLANA_RPC, 'confirmed');
 export const STORE_ID = new PublicKey(process.env.STORE_ADDRESS ||
   "8DLNU7o4dN3VtNPQsFkUEg89oSaXazQkMDG8ufQtzFQN");
 export const SETUP_FILTERS = [
