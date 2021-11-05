@@ -18,6 +18,7 @@ ENV=local
 MONGO_HOSTNAME=mongodb
 READER_PORT=3000
 STORE_ADDRESS=<YOUR_STORE_PUBKEY>
+SOLANA_RPC_ENDPOINT=<SOLANA_RPC_ENDPOINT> e.g(https://api.devnet.solana.com)
 ```
 
 Building:
