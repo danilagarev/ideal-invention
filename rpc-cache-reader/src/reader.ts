@@ -41,6 +41,6 @@ app.get("/pools", async (req, res , next) => {
   }
 })
 
-const port = process.env.READER_PORT
+const port = process.env.READER_PORT || 80
 
 app.listen(port);
