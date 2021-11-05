@@ -76,7 +76,7 @@ export async function findAllAuctions(): Promise<AuctionManagerDB[] | null> {
   }
 }
 
-export async function findAuctionById(auctionManagerId: string):Promise<AuctionManagerDB> {
+export async function findAuctionById(auctionManagerId: string):Promise<AuctionManagerDB | null> {
   const switcher = await dbSwitcher.getMainTable('auction');
   console.log("switcher", switcher)
   let model;
