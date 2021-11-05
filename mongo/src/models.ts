@@ -57,12 +57,12 @@ export interface NFTAttributes {
 
 // Schema
 const NFTDetailsSchema = new Schema<NFTDetails>({
-  name: {type: String, required: false},
-  symbol: {type: String, required: false},
-  description: {type: String, required: false},
-  seller_fee_basis_points: {type: Number, required: false},
-  image: {type: String, required: false},
-  external_url: {type: String, required: false},
+  name: String,
+  symbol: String,
+  description: String,
+  seller_fee_basis_points: Number,
+  image: String,
+  external_url: String,
   properties: {
     files: [{
         uri: String,
