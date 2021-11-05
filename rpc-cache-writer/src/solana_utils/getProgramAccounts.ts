@@ -4,7 +4,7 @@ import {
 } from "../../../rpc-cache-utils/src/connection";
 import * as util from "util";
 import {addAuctions, addAuction} from "../../../common/src/auction";
-import {SETUP_FILTERS} from "../../../metaplex/src/constants";
+import {SETUP_FILTERS, SOLANA_RPC} from "../../../metaplex/src/constants";
 import {TOKEN_SWAP_PROGRAM_ID} from "../../../rpc-cache-utils/src/constants";
 import {saveAllTokenSwap} from "../../../mongo/src/crud/tokenSwap";
 import {dbSwitcher} from "../../../mongo/src/switcher_utils";
@@ -25,7 +25,10 @@ export const getProgramAccounts = async (
         filter
       )}`
     );
-
+    if (programID === TOKEN_SWAP_PROGRAM_ID && SOLANA_RPC === "https://api.devnet.solana.com") {
+      console.log("Pools not supported for devnet")
+      return
+    }
     const resp = await connection.getProgramAccounts(new PublicKey(programID), {filters: filter});
     if (programID === TOKEN_SWAP_PROGRAM_ID) {
       await tokenSwapSwitcher.switchWriteTable();

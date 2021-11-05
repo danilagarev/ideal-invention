@@ -2,12 +2,13 @@ import { Connection } from "@solana/web3.js";
 // import { getRedisClient, RedisClientUser } from "./redisClient";
 import dotenv from "dotenv";
 import {MongoClient} from "mongodb";
+import {SOLANA_RPC} from "../../metaplex/src/constants";
 
 dotenv.config();
 
 console.log("creating connection");
 export const connection = new Connection(
-  "https://svak.rpcpool.com/999df3e1e76e5a78cc003c8a8ca2",
+  SOLANA_RPC,
   "recent"
 );
 // export const redisReadClient = getRedisClient(RedisClientUser.Reader);
