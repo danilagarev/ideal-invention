@@ -39,10 +39,9 @@ async function prepareAuction(auctionManager: any): Promise<AuctionManagerDB> {
   const seller = auctionManager.data.authority;
   const vault = await Vault.load(connection, vaultPubkey);
   const safetyDepositBox = (await vault.getSafetyDepositBoxes(connection))[0];
-  const metadata = (await Metadata.findMany(connection,
-    {mint: safetyDepositBox.data.tokenMint}))[0].data;
+  const metadataAddress = await Metadata.getPDA(safetyDepositBox.data.tokenMint);
+  const metadata = (await Metadata.load(connection, metadataAddress)).data;
   const NFTDetailsDB = await getMetadataFromJson(metadata.data.uri);
-
   return <AuctionManagerDB>{
     auction: auction.pubkey.toBase58(),
     manager: auctionManager.pubkey.toBase58(),
