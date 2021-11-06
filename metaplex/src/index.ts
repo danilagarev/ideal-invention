@@ -2,6 +2,7 @@ import {programs} from "@metaplex/js";
 import {AuctionManagerDB, NFTDetails} from "../../mongo/src/models";
 import {connection} from "./constants";
 import {default as axios} from "axios";
+import {PublicKey} from "@solana/web3.js";
 
 const { metaplex: { Store, AuctionManager }, metadata: { Metadata }, vault: { Vault } } = programs;
 
@@ -14,6 +15,10 @@ export async function getAuctionsByStore(storePubkey: string): Promise<AuctionMa
 }
 
 export async function getAuctionsByAuctionManager(aucManagerPubkey: string): Promise<AuctionManagerDB> {
+  const auctionmanagerTransactions = await connection.getSignaturesForAddress(
+    new PublicKey(aucManagerPubkey
+    ))
+  console.log(auctionmanagerTransactions[0]);
   const auctionManager = await AuctionManager.load(connection, aucManagerPubkey);
   return await prepareAuction(auctionManager);
 }

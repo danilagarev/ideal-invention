@@ -7,6 +7,7 @@ import {programs} from "@metaplex/js";
 const {metaplex: {MetaplexKey}} = programs;
 
 export const SOLANA_RPC = process.env.SOLANA_RPC_ENDPOINT || "https://api.devnet.solana.com";
+console.log(SOLANA_RPC)
 
 export const connection = new Connection(SOLANA_RPC, 'confirmed');
 export const STORE_ID = new PublicKey(process.env.STORE_ADDRESS ||

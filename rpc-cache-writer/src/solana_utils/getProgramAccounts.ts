@@ -59,7 +59,7 @@ export const getProgramAccounts = async (
           const pubkey = info.accountId.toBase58();
           await addAuction(pubkey)
         },
-        "recent",
+        "confirmed",
         SETUP_FILTERS
       );
       webSocketsIds.set(programID, subId);
