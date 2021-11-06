@@ -16,7 +16,11 @@ rpc-cache.config.json
 *.css
 *.css.map
 .vscode/*
-.env
 compiled/
 
 *.lock
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
