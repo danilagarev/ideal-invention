@@ -26,10 +26,10 @@ async function prepareTokenSwap(tokenSwapData: any,
   const feeAccount = new PublicKey(tokenSwapData.feeAccount).toBase58();
   const tokenAccountA = new TokenAccount(
     await connection.getParsedAccountInfo(new PublicKey(tokenSwapData.tokenAccountA)),
-    tokenSwapData.tokenAccountA);
+    new PublicKey(tokenSwapData.tokenAccountA).toBase58());
   const tokenAccountB = new TokenAccount(
     await connection.getParsedAccountInfo(new PublicKey(tokenSwapData.tokenAccountB)),
-    tokenSwapData.tokenAccountB
+    new PublicKey(tokenSwapData.tokenAccountB).toBase58()
     );
   const mintA = new PublicKey(tokenSwapData.mintA).toBase58();
   const mintB = new PublicKey(tokenSwapData.mintB).toBase58();
