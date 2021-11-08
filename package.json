@@ -50,7 +50,8 @@
   ],
   "scripts": {
     "lint:fix": "eslint --fix '*/{src,test}/**/*.ts' && prettier --write '*/{src,test}/**/*.ts'",
-    "build": "tsc && cross-env NODE_ENV=production rollup -c"
+    "start:writer": "tsc && node -r dotenv/config ./dist/lib/rpc-cache-writer/src/writer",
+    "start:reader": "tsc && node -r dotenv/config ./dist/lib/rpc-cache-reader/src/reader"
   },
   "devDependencies": {
     "@babel/core": "^7.14.3",

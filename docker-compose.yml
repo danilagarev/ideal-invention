@@ -6,7 +6,7 @@ services:
       dockerfile: ./rpc-cache-writer/Dockerfile
     env_file:
       - ./.env
-    command: node ./dist/lib/rpc-cache-writer/src/writer
+    command: npm run start:writer
     working_dir: /app
     depends_on:
       - mongodb
@@ -18,7 +18,7 @@ services:
       dockerfile: ./rpc-cache-reader/Dockerfile
     env_file:
       - ./.env
-    command: node ./dist/lib/rpc-cache-reader/src/reader
+    command: npm run start:reader
     working_dir: /app
     ports:
       - ${READER_PORT}:${READER_PORT}
